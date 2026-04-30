@@ -1,37 +1,35 @@
-.todo{
+.todo {
     display: flex;
     flex-direction: column;
     row-gap: 24px;
     width: 100%;
-    min-width: 404px;
+    max-width: 404px;
+    /*min-height: 365px;*/
     min-height: 429px;
     padding: 24px;
     background-color: var(--color-white);
-    border:var( --border);
+    border: var(--border);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
-
 }
 
-.todo__title{
+.todo__title {
     text-align: center;
     font-size: 24px;
     font-weight: 600;
     line-height: 1.2;
-    letter-spacing: -0.02em;
 }
 
-.todo_form{
+.todo__form {
     display: flex;
     column-gap: 16px;
-
 }
 
-.todo_field{
+.todo__field {
     width: 100%;
 }
 
-.todo_info{
+.todo__info {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -39,31 +37,36 @@
     font-weight: 600;
 }
 
-.todo_delete-all-btn{
-    padding: 0px;
+.todo__delete-all-button {
+    padding: 0;
     background-color: transparent;
-    border:none;
+    border: none;
 
     &:hover {
         color: var(--color-gray-4);
     }
 
-    &:not(.is-visible){
+    &:not(.is-visible) {
         opacity: 0;
         visibility: hidden;
     }
 }
 
-.todo_list,.todo_empty-message {
-    &:empty{
+.todo__list,
+.todo__empty-message {
+    &:empty {
         display: none;
-
     }
 }
 
-.todo_list{
-    --todoListRowGap:8px;
+.todo__list {
+    --todoListRowGap: 8px;
+
     display: grid;
     row-gap: var(--todoListRowGap);
+}
 
+.todo__empty-message {
+    text-align: center;
+    color: var(--color-gray-4);
 }
