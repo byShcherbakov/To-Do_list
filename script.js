@@ -38,7 +38,9 @@ class Todo {
             filteredItems: null,
             serchQuerly: '',
         }
-        //1.10.03
+
+        this.render()
+        this.bindEvents()
     }
     getItemsFromLocalStorage(){
         const rawData = localStorage.getItem(this.localStorageKey)
@@ -57,20 +59,19 @@ class Todo {
         }
     }
 
-
     saveItemsTodoLocalStorage(){
         localStorage.setItem(this.localStorageKey, JSON.stringify(this.state.items))
     }
 
-    render(){
-        this.totalTasksElement.textContent = this.state.items.length // итоговое кол-во задач
+    render() {
+        this.totalTasksElement.textContent = this.state.items.length
 
         this.deleteAllButtonElement.classList.toggle(
             this.stateClasses.isVisible,
-            this.state.items.length >0
+            this.state.items.length > 0
         )
 
-        const items = this.state.filteredItems?? this.state.items
+        const items = this.state.filteredItems ?? this.state.items
 
         this.listElement.innerHTML = items.map(({ id, title, isChecked }) => `
       <li class="todo__item todo-item" data-js-todo-item>
@@ -102,12 +103,127 @@ class Todo {
     `).join('')
 
         const isEmptyFilteredItems = this.state.filteredItems?.length === 0
-        const isEmptyFilteredItem = this.state.items.length === 0
+        const isEmptyItems = this.state.items.length === 0
 
-        this.emptyMessageElement.textContent = isEmptyFilteredItem?'Tasks not found'
-            :isEmptyItems?'There are no tasks yet'
-                :''
+        this.emptyMessageElement.textContent =
+            isEmptyFilteredItems ? 'Tasks not found'
+                : isEmptyItems ? 'There are no tasks yet'
+                    : ''
     }
+    addItem(title){
+        this.state.items.push({
+            id:crypto?.randomUUID() ?? Date.now().toString(),
+            title,
+            isChecked: false,
+        })
+
+        this.saveItemsTodoLocalStorage()
+        this.render()
+    }
+
+    deleteItem(id){
+        this.state.items = this.state.items.filter((item) => item.id !== id)
+        this.saveItemsTodoLocalStorage()
+        this.render()
+    }
+
+    toggleCheckedStatus(id){
+        this.state.items = this.state.items.filter((item) => {
+            if(item.id === id){
+                return{
+                    ...item,
+                    isChecked: !item.isChecked,
+                }
+            }
+            return item
+        })
+        this.saveItemsTodoLocalStorage()
+        this.render()
+    }
+
+    filter(){
+        const queryFormatted = this.state.serchQuerly.toLowerCase()
+
+        this.state.filteredItems = this.state.items.filter(({title}) => {
+            const titleFormatted = title.toLowerCase()
+
+            return titleFormatted.includes(queryFormatted)
+        })
+        this.render()
+    }
+
+    resertfilter(){
+        this.state.filteredItems = null
+        this.state.serchQuerly = ''
+        this.render()
+    }
+
+    onNewTaskFormSubmit = (event)=>{
+        event.preventDefault()
+
+
+        const newTodoItemTitle = this.newTaskInputElement.value;
+        if(newTodoItemTitle.trim().length > 0 ){
+            this.addItem(newTodoItemTitle)
+            this.resertfilter()
+            this.newTaskInputElement.value = '';
+            this.newTaskInputElement.focus();
+        }
+    }
+
+    onSearchTaskFormSubmit=(event)=>{
+        event.preventDefault()
+
+    }
+    onSearchTaskImputChange = ({target} )=>{
+        const value = target.value.trim()
+
+        if(value.length> 0 ){
+            this.state.serchQuerly= value
+            this.filter()
+        }else{
+            this.resertfilter()
+        }
+    }
+
+    deleteAllButtonClick =()=> {
+        const isConfirmed = confirm('Are you sure you want to delete all?')
+
+        if(isConfirmed){
+            this.state.items= []
+            this.saveItemsTodoLocalStorage()
+            this.render()
+        }
+    }
+    onClick = ({target})=>{
+        if(target.matches(this.selectors.itemDeleteButton)){
+            const itemElement = target.closest(this.selectors.item)
+            const itemCheckboxElement = itemElement.querySelector(this.selectors.itemCheckbox)
+
+            itemElement.classList.add(this.stateClasses.isDisappearing)
+
+            setTimeout(() => {
+                this.deleteItem(itemCheckboxElement.id)
+            },400)
+        }
+    }
+
+    onChange = ({target}) => {
+        if(target.matches(this.selectors.itemCheckbox)){
+            this.toggleCheckedStatus(target.id)
+        }
+    }
+
+    bindEvents(){
+        this.newTaskFormElement.addEventListener('submit', this.onNewTaskFormSubmit)
+        this.searchTaskFormElement.addEventListener('submit',this.onSearchTaskFormSubmit)
+        this.searchTaskInputElement.addEventListener('input',this.onSearchTaskImputChange)
+        this.deleteAllButtonElement.addEventListener('click', this.deleteAllButtonClick)
+        this.listElement.addEventListener('click',this.onClick)
+        this.listElement.addEventListener('change',this.onChange)
+    }
+
+
 }
 
 
